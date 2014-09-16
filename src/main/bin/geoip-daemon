@@ -1,0 +1,30 @@
+#!/bin/sh
+
+pwd=$PWD
+cd `dirname $0` && cd ..
+
+DAEMON_USER=$USER
+DAEMON_HOME=$PWD
+DAEMON_CLASS=geoipdaemon.GeoIPDaemon
+PID_FILE=$DAEMON_HOME/var/geoip-daemon.pid
+CLASSPATH=`ls lib/*.jar | tr '\n' ':'`
+
+case $1 in
+start)
+    mkdir -p logs
+    mkdir -p var
+
+    $DAEMON_HOME/bin/jsvc -outfile logs/geoip-daemon.out -errfile logs/geoip-daemon.err -procname "geoip-daemon" \
+    -cwd $DAEMON_HOME -user $DAEMON_USER -pidfile $PID_FILE \
+    -java-home $JAVA_HOME -Xmx128m -cp $CLASSPATH \
+    $DAEMON_CLASS conf/geoip-daemon.properties
+    ;;
+stop)
+    $DAEMON_HOME/bin/jsvc -stop -pidfile $PID_FILE $DAEMON_CLASS
+    ;;
+*)
+    echo "Usage: $0 {start|stop}"
+    ;;
+esac
+
+cd $pwd
