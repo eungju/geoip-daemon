@@ -16,9 +16,9 @@ import java.net.InetAddress;
 class RestHandler implements HttpHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    final HttpHandler badRequest = new ResponseCodeHandler(StatusCodes.BAD_REQUEST);
-    final HttpHandler notFound = new ResponseCodeHandler(StatusCodes.NOT_FOUND);
-    final HttpHandler methodNotAllowed = new ResponseCodeHandler(StatusCodes.METHOD_NOT_ALLOWED);
+    HttpHandler badRequest = new ResponseCodeHandler(StatusCodes.BAD_REQUEST);
+    HttpHandler notFound = new ResponseCodeHandler(StatusCodes.NOT_FOUND);
+    HttpHandler methodNotAllowed = new ResponseCodeHandler(StatusCodes.METHOD_NOT_ALLOWED);
 
     final ObjectMapper jsonMapper = new ObjectMapper();
     final Databases databases;

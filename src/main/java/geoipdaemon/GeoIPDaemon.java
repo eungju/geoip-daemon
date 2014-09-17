@@ -24,16 +24,17 @@ import java.util.Properties;
 public class GeoIPDaemon implements Daemon {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    Properties properties;
+    PropertiesConfig config;
     Databases databases;
     Undertow webServer;
 
     @Override
     public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
-        properties = new Properties();
+        Properties properties = new Properties();
         properties.load(new FileReader(daemonContext.getArguments()[0]));
+        config = new PropertiesConfig(properties);
 
-        configureLogback();
+        configureLogger();
         databases = buildDatabases();
         webServer = buildWebServer(databases);
     }
@@ -52,11 +53,11 @@ public class GeoIPDaemon implements Daemon {
     public void destroy() {
         webServer = null;
         databases = null;
-        properties = null;
+        config = null;
     }
 
-    void configureLogback() {
-        String confPath = properties.getProperty("logback.conf", "conf/logback.xml");
+    void configureLogger() {
+        String confPath = config.getLoggerConf();
         // assume SLF4J is bound to logback in the current environment
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         try {
@@ -71,11 +72,11 @@ public class GeoIPDaemon implements Daemon {
     }
 
     Databases buildDatabases() throws Exception {
-        String[] names = properties.getProperty("databases").split(",");
+        String[] names = config.getDatabaseNames();
         logger.info("Building databases {}", Joiner.on(",").join(names));
         Databases databases = new Databases();
         for (String name : names) {
-            String path = properties.getProperty("databases." + name);
+            String path = config.getDatabasePath(name);
             logger.info("Loading database {} from {}", name, path);
             Reader db = new Reader(new File(path));
             databases.add(name, db);
@@ -84,7 +85,7 @@ public class GeoIPDaemon implements Daemon {
     }
 
     Undertow buildWebServer(Databases databases) throws Exception {
-        int port = Integer.parseInt(properties.getProperty("web.port", "4000"));
+        int port = config.getWebPort();
         logger.info("Building web server with port {}.", port);
         RestHandler restHandler = new RestHandler(databases);
         PathHandler pathHandler = new PathHandler();
