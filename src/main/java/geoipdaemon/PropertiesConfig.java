@@ -1,12 +1,15 @@
 package geoipdaemon;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Properties;
 
 public class PropertiesConfig {
     Properties properties;
 
-    public PropertiesConfig(Properties properties) {
-        this.properties = properties;
+    public PropertiesConfig(String name) throws IOException {
+        properties = new Properties();
+        properties.load(new FileReader(name));
     }
 
     public String getLoggerConf() {

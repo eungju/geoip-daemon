@@ -30,9 +30,7 @@ public class GeoIPDaemon implements Daemon {
 
     @Override
     public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
-        Properties properties = new Properties();
-        properties.load(new FileReader(daemonContext.getArguments()[0]));
-        config = new PropertiesConfig(properties);
+        config = new PropertiesConfig(daemonContext.getArguments()[0]);
 
         configureLogger();
         databases = buildDatabases();
